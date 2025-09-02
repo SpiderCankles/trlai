@@ -1,0 +1,31 @@
+App
+  Header
+  
+  TODO List
+    Text box
+        toggle all button
+        inform parent of new TODOs when enter key pressed
+    TODO
+        behaviors
+            do something when checked
+            do something when unchecked
+            enter edit state on double click
+            inform parent of the state I'm in
+                checked
+                deleted
+                unchecked
+                edited
+            animate children
+        check button
+            change state between checked and unchecked
+        delete button
+            inform parent of deletion
+        pretty text
+    todo footer
+        show number of items in list
+        inform parent of filter
+        Filters
+        know the state of the filter
+  Footer
+    contains text
+  

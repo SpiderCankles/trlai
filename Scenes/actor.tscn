@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://diqli5fi11b4u"]
+
+[ext_resource type="Script" uid="uid://c4mjrghbmbxte" path="res://Scripts/Actor.gd" id="1_a4aht"]
+[ext_resource type="PackedScene" uid="uid://b3qhc414hwxhl" path="res://Scenes/combat_stats.tscn" id="2_lfvdv"]
+
+[node name="Actor" type="Node2D"]
+script = ExtResource("1_a4aht")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+
+[node name="CombatStats" parent="." instance=ExtResource("2_lfvdv")]
