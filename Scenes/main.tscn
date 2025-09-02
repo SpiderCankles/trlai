@@ -27,3 +27,4 @@ grid_position = Vector2i(1, 1)
 [node name="ItemSpawner" parent="." instance=ExtResource("7_344ge")]
 
 [node name="Enemy" parent="." instance=ExtResource("7_6bp64")]
+visible = false

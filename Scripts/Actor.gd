@@ -1,4 +1,4 @@
-# Actor.gd - Enhanced with combat system integration
+# Actor.gd - Enhanced with combat system integration and sprite sheet support
 class_name Actor
 extends Node2D
 
@@ -9,6 +9,11 @@ extends Node2D
 @export var move_duration: float = 0.05
 @export var move_easing: Tween.EaseType = Tween.EASE_OUT
 @export var move_transition: Tween.TransitionType = Tween.TRANS_QUART
+
+# Sprite sheet configuration
+@export var sprite_sheet: Texture2D  # Assign your sprite sheet in the editor
+@export var sprite_size: Vector2i = Vector2i(32, 32)  # Size of each sprite in the sheet
+@export var actor_type: String = "player"  # Type identifier for sprite lookup
 
 var time_accumulated: int = 0
 var movement_tween: Tween
@@ -21,6 +26,25 @@ var sprite_node: Sprite2D
 var area_node: Area2D
 var combat_stats: CombatStats
 
+# Sprite atlas coordinates for different actor types
+var sprite_atlas_coords = {
+	# Player types
+	"player": Vector2i(0, 0),
+	"warrior": Vector2i(1, 0),
+	"mage": Vector2i(2, 0),
+	"rogue": Vector2i(3, 0),
+	
+	# Enemy types
+	"goblin": Vector2i(7, 7),
+	"orc": Vector2i(0, 7),
+	"skeleton": Vector2i(0, 11),
+	"rat": Vector2i(0, 16),
+	"troll": Vector2i(0, 8),
+	
+	# Default
+	"default": Vector2i(0, 0)
+}
+
 # Screen tearing debugging
 var _last_frame_position: Vector2
 var _position_changes_this_frame: int = 0
@@ -31,6 +55,9 @@ func _ready():
 	
 	# Find or create combat stats
 	setup_combat_stats()
+	
+	# Set up sprite from sprite sheet
+	setup_sprite_from_sheet()
 	
 	# Initialize grid position if not set
 	if grid_position == Vector2i.ZERO:
@@ -51,12 +78,135 @@ func find_child_nodes():
 	if not sprite_node:
 		sprite_node = get_node_or_null("Sprite")
 	
+	# Create sprite node if it doesn't exist
+	if not sprite_node:
+		sprite_node = Sprite2D.new()
+		sprite_node.name = "Sprite2D"
+		add_child(sprite_node)
+	
 	# Find area node
 	area_node = find_child("Area2D", false, false) as Area2D
 	if not area_node:
 		area_node = get_node_or_null("Area2D")
 	
-	print("Actor ", name, " found sprite: ", sprite_node, " area: ", area_node)
+	print("Actor ", name, " found/created sprite: ", sprite_node, " area: ", area_node)
+
+func setup_sprite_from_sheet():
+	"""Set up sprite using sprite sheet or fallback to colored square"""
+	if not sprite_node:
+		return
+		
+	# If we have a sprite sheet, use it
+	if sprite_sheet:
+		sprite_node.texture = sprite_sheet
+		sprite_node.region_enabled = true
+		update_sprite_region()
+		print("Set up sprite sheet for ", actor_type)
+	else:
+		# Fallback to colored squares if no sprite sheet
+		sprite_node.texture = create_fallback_texture()
+		sprite_node.region_enabled = false
+		print("Using fallback texture for ", actor_type)
+
+func update_sprite_region():
+	"""Update sprite region based on actor type"""
+	if not sprite_node or not sprite_sheet:
+		return
+		
+	# Get atlas coordinates for this actor type
+	var coords = sprite_atlas_coords.get(actor_type.to_lower(), sprite_atlas_coords["default"])
+	
+	# Calculate pixel position in sprite sheet
+	var pixel_x = coords.x * sprite_size.x
+	var pixel_y = coords.y * sprite_size.y
+	
+	sprite_node.region_rect = Rect2(pixel_x, pixel_y, sprite_size.x, sprite_size.y)
+	print("Set sprite region for ", actor_type, " to: ", sprite_node.region_rect)
+
+func create_fallback_texture() -> ImageTexture:
+	"""Create a colored square fallback texture"""
+	var image = Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	
+	var color: Color
+	match actor_type.to_lower():
+		# Player colors
+		"player", "warrior":
+			color = Color.BLUE
+		"mage":
+			color = Color.CYAN
+		"rogue":
+			color = Color.DARK_GRAY
+			
+		# Enemy colors
+		"goblin":
+			color = Color.GREEN
+		"orc":
+			color = Color.RED
+		"skeleton":
+			color = Color.WHITE
+		"rat":
+			color = Color(0.6, 0.4, 0.2)  # Brown
+		"troll":
+			color = Color(0.4, 0.2, 0.6)  # Purple
+		_:
+			color = Color.MAGENTA
+	
+	image.fill(color)
+	
+	var texture = ImageTexture.new()
+	texture.set_image(image)
+	return texture
+
+func set_actor_type(new_type: String):
+	"""Change actor type and update sprite"""
+	actor_type = new_type
+	setup_sprite_from_sheet()
+
+func set_sprite_type(type: String):
+	"""Alias for set_actor_type - for compatibility"""
+	set_actor_type(type)
+
+func set_sprite_animation_state(state: String):
+	"""Set visual state for animation (idle, moving, attacking, etc.)"""
+	if not sprite_node:
+		return
+		
+	# You can extend this to show different sprites based on state
+	# For now, we'll handle basic visual effects
+	match state:
+		"idle":
+			# Reset to normal
+			reset_sprite_effects()
+		"moving":
+			# Could add a subtle highlight or different frame in the future
+			reset_sprite_effects()
+		"attacking":
+			# Brief highlight effect
+			if sprite_node:
+				var attack_tween = create_tween()
+				attack_tween.tween_property(sprite_node, "modulate", Color.YELLOW, 0.1)
+				attack_tween.tween_property(sprite_node, "modulate", Color.WHITE, 0.1)
+		"hurt":
+			# Flash red
+			if sprite_node:
+				var hurt_tween = create_tween()
+				hurt_tween.tween_property(sprite_node, "modulate", Color.RED, 0.1)
+				hurt_tween.tween_property(sprite_node, "modulate", Color.WHITE, 0.2)
+		"dead":
+			# Make semi-transparent
+			if sprite_node:
+				sprite_node.modulate = Color(1, 1, 1, 0.5)
+		"heal":
+			# Flash green
+			if sprite_node:
+				var heal_tween = create_tween()
+				heal_tween.tween_property(sprite_node, "modulate", Color.GREEN, 0.1)
+				heal_tween.tween_property(sprite_node, "modulate", Color.WHITE, 0.2)
+
+func reset_sprite_effects():
+	"""Reset sprite to normal appearance"""
+	if sprite_node:
+		sprite_node.modulate = Color.WHITE
 
 func setup_combat_stats():
 	# Look for existing CombatStats node
@@ -121,6 +271,7 @@ func take_turn() -> Action:
 	# Check if stunned
 	if is_stunned:
 		print(name, " is stunned and loses their turn!")
+		set_sprite_animation_state("hurt")
 		return WaitAction.new()
 	
 	# Check if dead
@@ -149,6 +300,7 @@ func get_player_input() -> Action:
 
 func get_ai_action() -> Action:
 	# Simple AI - move randomly as an example (override in subclasses)
+	set_sprite_animation_state("idle")
 	var directions = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 	var random_dir = directions[randi() % directions.size()]
 	return MoveAction.new(random_dir)
@@ -166,19 +318,12 @@ func update_visual_position_smooth():
 	var target_pos = Vector2(grid_position * cell_size)
 	var start_pos = global_position
 	
-	#print("=== SMOOTH MOVEMENT DEBUG FOR ", name, " ===")
-	#print("Grid position: ", grid_position)
-	#print("Cell size: ", cell_size)
-	#print("Calculated target: ", target_pos)
-	#print("Current position: ", start_pos)
-	#print("Distance to move: ", target_pos - start_pos)
-	#print("Starting smooth movement from ", start_pos, " to ", target_pos)
-	
 	if movement_tween:
 		movement_tween.kill()
 	
 	movement_tween = create_tween()
 	is_moving = true
+	set_sprite_animation_state("moving")
 	
 	movement_tween.set_ease(move_easing)
 	movement_tween.set_trans(move_transition)
@@ -191,6 +336,7 @@ func update_visual_position_smooth():
 	
 	await movement_tween.finished
 	is_moving = false
+	set_sprite_animation_state("idle")
 	print("Movement Complete for ", name, ", final position: ", global_position)
 
 func add_movement_effects():
@@ -222,11 +368,11 @@ func is_valid() -> bool:
 func set_dead(dead: bool):
 	is_dead = dead
 	if is_dead:
-		# Visual feedback for death
+		set_sprite_animation_state("dead")
+		# Additional death effects
 		if sprite_node:
 			var death_tween = create_tween()
 			death_tween.set_parallel(true)
-			death_tween.tween_property(sprite_node, "modulate", Color.RED, 0.2)
 			death_tween.tween_property(sprite_node, "scale", Vector2(1.2, 1.2), 0.1)
 			death_tween.tween_property(sprite_node, "scale", Vector2(0.8, 0.8), 0.3).set_delay(0.1)
 
@@ -238,11 +384,8 @@ func set_stunned(stunned: bool):
 		stun_tween.set_loops()
 		stun_tween.tween_property(sprite_node, "modulate", Color.YELLOW, 0.2)
 		stun_tween.tween_property(sprite_node, "modulate", Color.WHITE, 0.2)
-	elif not stunned and sprite_node:
-		# Remove stun effect
-		if sprite_node.modulate != Color.WHITE:
-			var recover_tween = create_tween()
-			recover_tween.tween_property(sprite_node, "modulate", Color.WHITE, 0.1)
+	elif not stunned:
+		reset_sprite_effects()
 
 # Combat event handlers
 func _on_combat_death(dying_actor: Actor):
@@ -255,16 +398,10 @@ func _on_combat_death(dying_actor: Actor):
 
 func _on_health_changed(old_health: int, new_health: int):
 	# Visual feedback for health changes
-	if new_health < old_health and sprite_node:
-		# Damage flash
-		var damage_tween = create_tween()
-		damage_tween.tween_property(sprite_node, "modulate", Color.RED, 0.1)
-		damage_tween.tween_property(sprite_node, "modulate", Color.WHITE, 0.1)
-	elif new_health > old_health and sprite_node:
-		# Healing flash
-		var heal_tween = create_tween()
-		heal_tween.tween_property(sprite_node, "modulate", Color.GREEN, 0.1)
-		heal_tween.tween_property(sprite_node, "modulate", Color.WHITE, 0.1)
+	if new_health < old_health:
+		set_sprite_animation_state("hurt")
+	elif new_health > old_health:
+		set_sprite_animation_state("heal")
 
 # Get adjacent actors for combat targeting
 func get_adjacent_actors() -> Array[Actor]:
@@ -353,6 +490,7 @@ func debug_print_state():
 	print("Global Position: ", global_position)
 	print("Is Moving: ", is_moving)
 	print("Is Player: ", is_player_controlled)
+	print("Actor Type: ", actor_type)
 	print("Base Speed: ", base_speed)
 	print("Time Accumulated: ", time_accumulated)
 	print("Is Dead: ", is_dead)
@@ -366,4 +504,7 @@ func debug_print_state():
 		print("  Sprite Position: ", sprite_node.global_position)
 		print("  Sprite Scale: ", sprite_node.scale)
 		print("  Sprite Modulate: ", sprite_node.modulate)
+		print("  Sprite Sheet: ", sprite_sheet)
+		if sprite_node.region_enabled:
+			print("  Sprite Region: ", sprite_node.region_rect)
 	print("===========================")

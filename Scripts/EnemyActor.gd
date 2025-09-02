@@ -1,4 +1,4 @@
-# EnemyActor.gd - Enhanced with combat AI and different combat stats per enemy type
+# EnemyActor.gd - Enhanced with combat AI, sprite sheet support, and different combat stats per enemy type
 class_name EnemyActor
 extends Actor
 
@@ -9,6 +9,20 @@ extends Actor
 @export var aggression: float = 0.8
 @export var wander_chance: float = 0.3
 
+# Sprite sheet configuration
+#@export var sprite_sheet: Texture2D  # Assign your sprite sheet in the editor
+#@export var sprite_size: Vector2i = Vector2i(32, 32)  # Size of each sprite in the sheet
+
+# Sprite atlas coordinates for different enemy types (x, y positions in grid)
+#var sprite_atlas_coords = {
+	#"goblin": Vector2i(0, 0),
+	#"orc": Vector2i(1, 0),
+	#"skeleton": Vector2i(2, 0),
+	#"rat": Vector2i(3, 0),
+	#"troll": Vector2i(0, 1),
+	#"default": Vector2i(4, 0)
+#}
+
 # AI state
 enum AIState { IDLE, WANDERING, CHASING, LOST, COMBAT }
 var ai_state: AIState = AIState.IDLE
@@ -17,11 +31,85 @@ var turns_since_player_seen: int = 0
 var wander_direction: Vector2i = Vector2i.ZERO
 var wander_steps_remaining: int = 0
 
+# Sprite references
+#var sprite_node: Sprite2D
+
 func _ready():
 	super._ready()
 	is_player_controlled = false
+	setup_sprite()
 	setup_enemy_stats()
 	print("Enemy ready: ", enemy_type, " at ", grid_position)
+
+func setup_sprite():
+	# Find or create sprite node
+	sprite_node = get_node_or_null("Sprite2D")
+	if not sprite_node:
+		sprite_node = get_node_or_null("Sprite")
+		
+	if not sprite_node:
+		# Create sprite node if it doesn't exist
+		sprite_node = Sprite2D.new()
+		sprite_node.name = "Sprite2D"
+		add_child(sprite_node)
+		
+	# Configure sprite with appropriate region from sprite sheet
+	update_sprite_for_enemy_type()
+
+func update_sprite_for_enemy_type():
+	if not sprite_node:
+		return
+		
+	# If we have a sprite sheet, use it
+	if sprite_sheet:
+		sprite_node.texture = sprite_sheet
+		sprite_node.region_enabled = true
+		
+		# Get atlas coordinates for this enemy type
+		var coords = sprite_atlas_coords.get(enemy_type.to_lower(), sprite_atlas_coords["default"])
+		
+		# Calculate pixel position in sprite sheet
+		var pixel_x = coords.x * sprite_size.x
+		var pixel_y = coords.y * sprite_size.y
+		
+		sprite_node.region_rect = Rect2(pixel_x, pixel_y, sprite_size.x, sprite_size.y)
+		
+		print("Set sprite region for ", enemy_type, " to: ", sprite_node.region_rect)
+	else:
+		# Fallback to colored squares if no sprite sheet
+		sprite_node.texture = create_fallback_texture()
+		sprite_node.region_enabled = false
+
+func create_fallback_texture() -> ImageTexture:
+	# Fallback colored squares (same as before)
+	var image = Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	
+	var color: Color
+	match enemy_type.to_lower():
+		"goblin":
+			color = Color.GREEN
+		"orc":
+			color = Color.RED
+		"skeleton":
+			color = Color.WHITE
+		"rat":
+			color = Color(0.6, 0.4, 0.2)  # Brown
+		"troll":
+			color = Color(0.4, 0.2, 0.6)  # Purple
+		_:
+			color = Color.MAGENTA
+	
+	image.fill(color)
+	
+	var texture = ImageTexture.new()
+	texture.set_image(image)
+	return texture
+
+# Function to change enemy type dynamically
+func set_enemy_type(new_type: String):
+	enemy_type = new_type
+	update_sprite_for_enemy_type()
+	setup_enemy_stats()
 
 func setup_enemy_stats():
 	# Set different stats based on enemy type
@@ -154,6 +242,38 @@ func setup_default_combat():
 		combat_stats.crit_chance = 0.05
 		combat_stats.dodge_chance = 0.08
 
+# Animation support for different enemy states
+func set_sprite_animation_state(state: String):
+	if not sprite_node:
+		return
+		
+	# You can extend this to show different sprites based on state
+	# For example, different sprites for idle, moving, attacking
+	match state:
+		"idle":
+			# Use base sprite
+			update_sprite_for_enemy_type()
+		"moving":
+			# Could add a small offset or different frame
+			update_sprite_for_enemy_type()
+		"attacking":
+			# Could use different sprite region
+			update_sprite_for_enemy_type()
+		"hurt":
+			# Flash red or use hurt sprite
+			if sprite_node:
+				sprite_node.modulate = Color.RED
+				# You'd want to reset this after a timer
+		"dead":
+			# Make transparent or use death sprite
+			if sprite_node:
+				sprite_node.modulate = Color(1, 1, 1, 0.5)
+
+func reset_sprite_effects():
+	if sprite_node:
+		sprite_node.modulate = Color.WHITE
+
+# Rest of the AI and combat functions remain the same...
 func get_ai_action() -> Action:
 	print("=== AI DECISION FOR ", enemy_type.to_upper(), " ===")
 	print("Current state: ", AIState.keys()[ai_state])
@@ -177,6 +297,7 @@ func get_ai_action() -> Action:
 	
 	if can_attack_player:
 		print("Player is adjacent - attacking!")
+		set_sprite_animation_state("attacking")
 		return AttackAction.new(player)
 	
 	# Update AI state based on player visibility
@@ -185,12 +306,16 @@ func get_ai_action() -> Action:
 	# Choose action based on state
 	match ai_state:
 		AIState.CHASING:
+			set_sprite_animation_state("moving")
 			return get_chase_action(player.grid_position)
 		AIState.LOST:
+			set_sprite_animation_state("moving")
 			return get_search_action()
 		AIState.WANDERING:
+			set_sprite_animation_state("moving")
 			return get_wander_action()
 		_: # IDLE
+			set_sprite_animation_state("idle")
 			return get_idle_action()
 
 func update_ai_state(player: Actor, distance: float, can_see: bool):
