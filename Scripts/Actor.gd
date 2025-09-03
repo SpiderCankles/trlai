@@ -6,7 +6,7 @@ extends Node2D
 @export var base_speed: int = 100  # Lower = faster
 @export var grid_position: Vector2i = Vector2i.ZERO
 @export var cell_size: int = 32
-@export var move_duration: float = 0.05
+@export var move_duration: float = 0.1
 @export var move_easing: Tween.EaseType = Tween.EASE_OUT
 @export var move_transition: Tween.TransitionType = Tween.TRANS_QUART
 
