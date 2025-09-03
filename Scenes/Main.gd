@@ -26,20 +26,35 @@ func _ready():
 	
 	#setting up dungeon
 	#generate dungeon
-	#var map_data = generator.generate_dungeon()
-	#generator.print_map_ascii()
+	var map_data = generator.generate_dungeon()
+	generator.print_map_ascii()
 	
 	#render dungeon
-	#renderer.setup_with_generator(generator)
-	#renderer.render_dungeon(map_data)
+	renderer.setup_with_generator(generator)
+	renderer.render_dungeon(map_data)
 	
 	#spawn player at spawn point
-	#renderer.spawn_actor_at_spawn(player)
+	renderer.spawn_actor_at_spawn(player)
 	
-	test_simple_map_render()
+	#test_simple_map_render()
 	
 	#test_rendering_issue()
 	
+	#$TileMapRenderer.debug_tile_texture_regions()
+	#$TileMapRenderer.test_single_tiles()
+	
+	
+	## Position camera to see the test tiles
+	#var camera = get_viewport().get_camera_2d()
+	#camera.global_position = Vector2(320, 160)  # Center on test tiles
+	#camera.zoom = Vector2(2, 2)  # Zoom in to see details
+	
+	#$TileMapRenderer.render_side_by_side_test()
+	
+	#ultra_clean_test()
+	
+	#$TileMapRenderer.fix_tilemap_cell_size()
+	#$TileMapRenderer.test_after_cell_size_fix()
 	# Start the game
 	time_manager.process_turn()
 	
@@ -155,3 +170,171 @@ func test_rendering_issue():
 	position_camera_for_dungeon()
 	
 	print("\n=== END DEBUG TEST ===\n")
+	
+
+# Replace your main script dungeon generation with this debug version
+func debug_dungeon_generation():
+	"""Debug version of your dungeon generation"""
+	print("=== Starting Debug Dungeon Generation ===")
+	
+	# Create generator
+	var generator = DungeonGenerator.new()
+	print("Generator created with settings:")
+	print("  Map size: %dx%d" % [generator.map_width, generator.map_height])
+	print("  Room size: %d-%d" % [generator.min_room_size, generator.max_room_size])
+	print("  Max rooms: %d" % generator.max_rooms)
+	
+	# Generate the dungeon
+	var map_data = generator.generate_dungeon()
+	print("Map data generated")
+	
+	# Check the map data structure
+	if map_data and not map_data.is_empty():
+		print("Map data is valid:")
+		print("  Height: %d" % map_data.size())
+		print("  Width: %d" % (map_data[0].size() if map_data.size() > 0 else 0))
+		
+		# Sample a few tiles
+		var sample_positions = [Vector2i(0, 0), Vector2i(10, 10), Vector2i(40, 40)]
+		for pos in sample_positions:
+			if pos.y < map_data.size() and pos.x < map_data[pos.y].size():
+				var tile = map_data[pos.y][pos.x]
+				print("  Sample at %s: %s (%d)" % [pos, DungeonGenerator.TileType.keys()[tile], tile])
+	else:
+		print("ERROR: Map data is invalid!")
+		return
+	
+	# Get renderer
+	var renderer = $TileMapRenderer
+	print("Renderer found: ", renderer.name)
+	
+	# Setup renderer
+	renderer.setup_with_generator(generator)
+	print("Renderer setup complete")
+	
+	# Render with detailed debugging
+	renderer.render_dungeon_with_detailed_debug(map_data)
+	
+	# Position camera to see the result
+	var camera = get_viewport().get_camera_2d()
+	if camera:
+		# Center camera on the dungeon
+		var dungeon_center = renderer.grid_to_world(Vector2i(40, 40))
+		camera.global_position = dungeon_center
+		camera.zoom = Vector2(0.5, 0.5)  # Zoom out to see more
+		print("Camera positioned at: %s with zoom: %s" % [camera.global_position, camera.zoom])
+	
+	print("=== Debug Generation Complete ===")
+
+# Alternative: Test with a minimal dungeon first
+func test_minimal_dungeon():
+	"""Test with the simplest possible dungeon"""
+	print("=== Testing Minimal Dungeon ===")
+	
+	var renderer = $TileMapRenderer
+	
+	# Create a minimal 5x5 dungeon manually
+	var test_map: Array[Array] = []
+	for y in range(5):
+		var row: Array = []
+		for x in range(5):
+			if x == 0 or x == 4 or y == 0 or y == 4:
+				row.append(DungeonGenerator.TileType.WALL)
+			else:
+				row.append(DungeonGenerator.TileType.FLOOR)
+		test_map.append(row)
+	
+	# Add stairs in center
+	test_map[2][2] = DungeonGenerator.TileType.STAIRS_UP
+	
+	print("Minimal test map created (5x5)")
+	
+	# Render it
+	renderer.render_dungeon_with_detailed_debug(test_map)
+	
+	# Position camera to see it
+	var camera = get_viewport().get_camera_2d()
+	if camera:
+		camera.global_position = Vector2(80, 80)  # Center on 5x5 grid
+		camera.zoom = Vector2(4, 4)  # Zoom in close
+		print("Camera positioned for minimal dungeon view")
+	
+	print("=== Minimal Dungeon Test Complete ===")
+
+# Add this ultra-simple test to your main script
+func ultra_clean_test():
+	"""The simplest possible test to isolate the issue"""
+	var renderer = $TileMapRenderer
+	renderer.clear()
+	
+	print("=== Ultra Clean Test ===")
+	
+	# Place just 4 tiles in a square using only built-in methods
+	renderer.set_cell(0, Vector2i(0, 0), 0, Vector2i(0, 12))  # Floor top-left
+	renderer.set_cell(0, Vector2i(1, 0), 0, Vector2i(0, 2))   # Wall top-right
+	renderer.set_cell(0, Vector2i(0, 1), 0, Vector2i(0, 2))   # Wall bottom-left  
+	renderer.set_cell(0, Vector2i(1, 1), 0, Vector2i(0, 12))  # Floor bottom-right
+	
+	# Position camera to see these 4 tiles clearly
+	var camera = get_viewport().get_camera_2d()
+	camera.global_position = renderer.map_to_local(Vector2i(0, 0))  # Use built-in method
+	camera.zoom = Vector2(4, 4)  # Zoom in close
+	
+	print("Placed 4 tiles in a 2x2 square")
+	print("Camera position: %s" % camera.global_position)
+	print("If you see 4 complete tiles in a square, coordinate system is OK")
+	print("If tiles overlap or are cut off, coordinate system is broken")
+	
+	# Debug the actual positions
+	for y in range(2):
+		for x in range(2):
+			var grid_pos = Vector2i(x, y)
+			var world_pos = renderer.map_to_local(grid_pos)
+			var source_id = renderer.get_cell_source_id(0, grid_pos)
+			var atlas_coords = renderer.get_cell_atlas_coords(0, grid_pos)
+			
+			print("Grid (%d,%d) -> World %s -> Source: %d, Atlas: %s" % [
+				x, y, world_pos, source_id, atlas_coords
+			])
+	
+	print("========================")
+
+# Test with manual array instead of DungeonGenerator
+func test_manual_array():
+	"""Test rendering a manually created array"""
+	var renderer = $TileMapRenderer
+	
+	# Create a simple 5x5 array manually - NO DungeonGenerator
+	var manual_map: Array[Array] = []
+	
+	for y in range(5):
+		var row: Array = []
+		for x in range(5):
+			if x == 0 or x == 4 or y == 0 or y == 4:
+				row.append(1)  # Use simple integers instead of enums
+			else:
+				row.append(2)
+		manual_map.append(row)
+	
+	# Render manually without using the render_dungeon function
+	renderer.clear()
+	print("=== Manual Array Test ===")
+	
+	for y in range(manual_map.size()):
+		for x in range(manual_map[y].size()):
+			var value = manual_map[y][x]
+			var atlas_coords = Vector2i(0, 12) if value == 2 else Vector2i(0, 2)  # Floor or Wall
+			
+			renderer.set_cell(0, Vector2i(x, y), 0, atlas_coords)
+			
+			# Debug first few
+			if x < 2 and y < 2:
+				print("Set manual tile at (%d,%d) with value %d -> atlas %s" % [x, y, value, atlas_coords])
+	
+	# Position camera
+	var camera = get_viewport().get_camera_2d()
+	camera.global_position = renderer.map_to_local(Vector2i(2, 2))  # Center of 5x5
+	camera.zoom = Vector2(2, 2)
+	
+	print("Manual 5x5 array rendered")
+	print("============================")
