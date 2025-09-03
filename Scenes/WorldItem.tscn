@@ -1,9 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://bwcxgvwnqkp4h"]
+[gd_scene load_steps=3 format=3 uid="uid://bwcxgvwnqkp4h"]
 
 [ext_resource type="Script" uid="uid://0p3xg615duu2" path="res://Scripts/Items/WorldItem.gd" id="1_3ogtp"]
+[ext_resource type="Texture2D" uid="uid://ibfsamfvghal" path="res://Assets/32rogues/items.png" id="2_x7ljn"]
 
 [node name="WorldItem" type="Node2D"]
 script = ExtResource("1_3ogtp")
+sprite_sheet = ExtResource("2_x7ljn")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 

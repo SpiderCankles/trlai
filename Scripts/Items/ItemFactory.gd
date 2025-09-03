@@ -2,6 +2,8 @@
 class_name ItemFactory
 extends Node
 
+@export var item_sprite_sheet: Texture2D  # Add this export to assign your item sprite sheet
+
 # Item templates for easy creation
 var weapon_templates = {
 	"rusty_sword": {
@@ -169,8 +171,15 @@ func spawn_item_in_world(item: Item, position: Vector2, parent_node: Node = null
 		# Create manually if no scene file
 		world_item = WorldItem.new()
 	
+	# Set sprite sheet if available
+	if item_sprite_sheet:
+		world_item.set_sprite_sheet(item_sprite_sheet)
+	
 	parent_node.add_child(world_item)
 	world_item.setup(item, 1, position)
+	
+	# Optional: Add floating animation to make items more noticeable
+	world_item.add_pickup_animation()
 	
 	return world_item
 

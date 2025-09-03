@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://ckcky56ebeww5"]
+[gd_scene load_steps=3 format=3 uid="uid://ckcky56ebeww5"]
 
 [ext_resource type="Script" uid="uid://cuhds8hcujlxv" path="res://Scripts/Items/ItemFactory.gd" id="1_o3esn"]
+[ext_resource type="Texture2D" uid="uid://ibfsamfvghal" path="res://Assets/32rogues/items.png" id="2_fad07"]
 
 [node name="ItemFactory" type="Node"]
 script = ExtResource("1_o3esn")
+item_sprite_sheet = ExtResource("2_fad07")
