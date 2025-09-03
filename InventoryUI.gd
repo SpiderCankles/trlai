@@ -6,6 +6,7 @@ var inventory: Inventory
 var item_buttons: Array[Button] = []
 var info_label: RichTextLabel
 var equipped_labels: Dictionary = {}
+#var canvas_layer: CanvasLayer
 
 signal item_used(item: Item)
 signal close_inventory
@@ -15,11 +16,18 @@ func _ready():
 	create_ui()
 
 func create_ui():
+	
+	var canvas_layer = get_parent()
+	print("InventoryUI Parent: ", canvas_layer)
 	# Main panel
 	var panel = Panel.new()
 	panel.size = Vector2(400, 300)
 	panel.position = Vector2(50, 50)
 	add_child(panel)
+	
+	#panel.set_anchors_preset(InventoryUI.PRESET_CENTER)
+	#panel.size = Vector2(400, 300)
+	#canvas_layer.add_child(panel)
 	
 	# Title
 	var title = Label.new()

@@ -301,6 +301,11 @@ func can_move_to(current_pos: Vector2, direction: Vector2i) -> bool:
 		
 		return false
 	
+	var tilemap_renderer = get_node("/root/Main/TileMapRenderer")
+	
+	if tilemap_renderer and tilemap_renderer.is_blocked_at(target_pos):
+		return false
+	
 	#print("all bypassed, returing true")
 	return true
 

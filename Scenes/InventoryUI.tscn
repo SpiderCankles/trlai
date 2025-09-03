@@ -2,9 +2,15 @@
 
 [ext_resource type="Script" uid="uid://dnapcc6lct05" path="res://InventoryUI.gd" id="1_lm8dl"]
 
-[node name="InventoryUI" type="Control"]
+[node name="InventoryCanvasLayer" type="CanvasLayer"]
+
+[node name="InventoryUI" type="Control" parent="."]
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_lm8dl")
