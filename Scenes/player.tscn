@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://d1eniolm7kd4r"]
+[gd_scene load_steps=5 format=3 uid="uid://d1eniolm7kd4r"]
 
 [ext_resource type="Script" uid="uid://d0gwewfu1y1si" path="res://Scripts/Player.gd" id="2_6t5aa"]
 [ext_resource type="Texture2D" uid="uid://87k1oqfp06st" path="res://Assets/32rogues/rogues.png" id="2_onrkg"]
+[ext_resource type="Texture2D" uid="uid://c4m4ht1j6d00o" path="res://Assets/roguesandmonsters.png" id="2_vgqql"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6t5aa"]
 size = Vector2(32, 32)
@@ -9,6 +10,7 @@ size = Vector2(32, 32)
 [node name="Player" type="Node2D"]
 script = ExtResource("2_6t5aa")
 is_player_controlled = true
+sprite_sheet = ExtResource("2_vgqql")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_onrkg")

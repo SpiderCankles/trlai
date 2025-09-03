@@ -93,6 +93,8 @@ func find_child_nodes():
 
 func setup_sprite_from_sheet():
 	"""Set up sprite using sprite sheet or fallback to colored square"""
+	print("sprite Sheet: ", sprite_node)
+	
 	if not sprite_node:
 		return
 		
@@ -121,7 +123,7 @@ func update_sprite_region():
 	var pixel_y = coords.y * sprite_size.y
 	
 	sprite_node.region_rect = Rect2(pixel_x, pixel_y, sprite_size.x, sprite_size.y)
-	print("Set sprite region for ", actor_type, " to: ", sprite_node.region_rect)
+	#print("Set sprite region sfor ", actor_type, " to: ", sprite_node.region_rect)
 
 func create_fallback_texture() -> ImageTexture:
 	"""Create a colored square fallback texture"""

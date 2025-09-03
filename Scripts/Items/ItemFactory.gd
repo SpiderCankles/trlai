@@ -103,6 +103,7 @@ func create_weapon(template_name: String) -> Weapon:
 	
 	var template = weapon_templates[template_name]
 	var weapon = Weapon.new()
+	var props = template.get("special_properties", [])
 	
 	weapon.item_name = template.get("name", "Unknown Weapon")
 	weapon.description = template.get("description", "A weapon.")
@@ -110,7 +111,8 @@ func create_weapon(template_name: String) -> Weapon:
 	weapon.attack_speed_modifier = template.get("speed_modifier", 1.0)
 	weapon.damage_type = template.get("damage_type", "physical")
 	weapon.crit_bonus = template.get("crit_bonus", 0.0)
-	weapon.special_properties = template.get("special_properties", [] as Array[String])
+	weapon.special_properties.assign(props)
+	print("weapon.special_properties ", weapon.special_properties)
 	weapon.rarity = template.get("rarity", Item.Rarity.COMMON)
 	weapon.value = template.get("value", 10)
 	
@@ -123,13 +125,15 @@ func create_armor(template_name: String) -> Armor:
 	
 	var template = armor_templates[template_name]
 	var armor = Armor.new()
+	var props = template.get("special_properties", [])
 	
 	armor.item_name = template.get("name", "Unknown Armor")
 	armor.description = template.get("description", "Protective gear.")
 	armor.armor_bonus = template.get("armor_bonus", 1)
 	armor.dodge_bonus = template.get("dodge_bonus", 0.0)
 	armor.resistance_modifiers = template.get("resistance_modifiers", {})
-	armor.special_properties = template.get("special_properties", [] as Array[String])
+	armor.special_properties.assign(props)
+	print("armor.special_properties ", armor.special_properties)
 	armor.rarity = template.get("rarity", Item.Rarity.COMMON)
 	armor.value = template.get("value", 10)
 	

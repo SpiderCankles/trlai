@@ -25,7 +25,7 @@ func spawn_test_items():
 	
 	# Spawn a variety of items for testing
 	var test_items = [
-		"rusty_sword",
+		"fire_blade",
 		"health_potion", 
 		"leather_armor",
 		"quick_dagger"
