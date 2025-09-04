@@ -59,9 +59,9 @@ func _unhandled_input(event):
 			action_selected.emit(action)
 
 func process_input(event: InputEvent) -> Action:
-	print("=== PROCESSING INPUT ===")
-	print("Event type: ", event.get_class())
-	print("Targeting mode: ", is_targeting_mode)
+	#print("=== PROCESSING INPUT ===")
+	#print("Event type: ", event.get_class())
+	#print("Targeting mode: ", is_targeting_mode)
 	
 	# Handle targeting mode
 	if is_targeting_mode:
@@ -104,7 +104,7 @@ func process_input(event: InputEvent) -> Action:
 	# Movement inputs
 	for input_name in movement_inputs:
 		if Input.is_action_just_pressed(input_name):
-			print("Movement input detected: ", input_name)
+			#print("Movement input detected: ", input_name)
 			var direction = movement_inputs[input_name]
 			
 			# Check if there's an enemy in that direction for auto-attack
@@ -280,31 +280,33 @@ func get_interactables_nearby() -> Array:
 # Check if movement to a position is valid
 func can_move_to(current_pos: Vector2, direction: Vector2i) -> bool:
 	
-	#print(grid_manager)
+	#print("grid manager? ", grid_manager)
 	if not grid_manager:
 		#print("if not grid_manager (should be false) ", not grid_manager)
 		return true
 		
 	var target_pos = Vector2i(current_pos) + direction
 	
+	#print("In bounds? ", grid_manager.is_in_bounds(target_pos))
 	if not grid_manager.is_in_bounds(target_pos):
 		#print("not grid_manager.is_in_bounds(target_pos) ", not grid_manager.is_in_bounds(target_pos))
 		return false
 	
+	#print("Is blocked? ", grid_manager.is_blocked(target_pos))
 	if grid_manager.is_blocked(target_pos):
 		#print("grid_manager.is_blocked(target_pos) ", grid_manager.is_blocked(target_pos))
 		return false
 		
-	#print("get_actor_at_position(Vector2(target_pos)) ", get_actor_at_position(Vector2(target_pos)))
-	#print(Vector2(target_pos))
+	#print("actor at target pos? ", get_actor_at_position(Vector2(target_pos)))
 	if get_actor_at_position(Vector2(target_pos)):
 		
 		return false
 	
 	var tilemap_renderer = get_node("/root/Main/TileMapRenderer")
 	
-	if tilemap_renderer and tilemap_renderer.is_blocked_at(target_pos):
-		return false
+	#print("blocked by tilemap_renderer? ", tilemap_renderer.is_blocked_at(target_pos))
+	#if tilemap_renderer and tilemap_renderer.is_blocked_at(target_pos):
+		#return false
 	
 	#print("all bypassed, returing true")
 	return true

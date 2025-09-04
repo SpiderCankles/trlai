@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://icugyr8dvid2"]
+[gd_scene load_steps=12 format=3 uid="uid://icugyr8dvid2"]
 
 [ext_resource type="Script" uid="uid://c1qp42rvdh7se" path="res://Scenes/Main.gd" id="1_21xkr"]
 [ext_resource type="PackedScene" uid="uid://d1eniolm7kd4r" path="res://Scenes/player.tscn" id="2_jjvhh"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://bymektimwkmne" path="res://Scenes/ItemSpawner.tscn" id="7_344ge"]
 [ext_resource type="PackedScene" uid="uid://hkcghc5iwd6n" path="res://Scenes/DungeonGenerator.tscn" id="9_ynf5e"]
 [ext_resource type="PackedScene" uid="uid://cuopanuhfgybd" path="res://Scenes/TileMapRenderer.tscn" id="10_hptm8"]
+[ext_resource type="PackedScene" uid="uid://c404fsnmj63y2" path="res://Scenes/InventoryUI.tscn" id="11_d1ilt"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_21xkr")
@@ -36,3 +37,8 @@ position = Vector2(80, 80)
 grid_position = Vector2i(1, 1)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
+
+[node name="InventoryCanvas" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+
+[node name="InventoryUI" parent="InventoryCanvas" instance=ExtResource("11_d1ilt")]

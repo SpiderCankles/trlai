@@ -4,14 +4,15 @@ extends Node2D
 func _ready():
 	var time_manager = $TimeManager
 	var player = $Player
-	var generator = DungeonGenerator.new()
-	var renderer = $TileMapRenderer
+	var dungeon_generator = $DungeonGenerator
+	var grid_manager = $GridManager
+	var tile_renderer = $TileMapRenderer
 	#var enemy1 = $Actor
 	
 	# Register actors
-	print("registering player: ", player)
+	#print("registering player: ", player)
 	time_manager.register_actor(player)
-	print("Actors Count: ", time_manager.actors.size())
+	#print("Actors Count: ", time_manager.actors.size())
 	
 	#setting up UI
 	setup_combat_ui()
@@ -26,36 +27,35 @@ func _ready():
 	
 	#setting up dungeon
 	#generate dungeon
-	var map_data = generator.generate_dungeon()
-	generator.print_map_ascii()
+	#var map_data = generator.generate_dungeon()
+	#generator.print_map_ascii()
 	
 	#render dungeon
-	renderer.setup_with_generator(generator)
-	renderer.render_dungeon(map_data)
+	#renderer.setup_with_generator(generator)
+	#renderer.render_dungeon(map_data)
 	
 	#spawn player at spawn point
-	renderer.spawn_actor_at_spawn(player)
-	
-	#test_simple_map_render()
-	
-	#test_rendering_issue()
-	
-	#$TileMapRenderer.debug_tile_texture_regions()
-	#$TileMapRenderer.test_single_tiles()
-	
-	
-	## Position camera to see the test tiles
-	#var camera = get_viewport().get_camera_2d()
-	#camera.global_position = Vector2(320, 160)  # Center on test tiles
-	#camera.zoom = Vector2(2, 2)  # Zoom in to see details
-	
-	#$TileMapRenderer.render_side_by_side_test()
-	
-	#ultra_clean_test()
-	
-	#$TileMapRenderer.fix_tilemap_cell_size()
+	#renderer.spawn_actor_at_spawn(player)
+
 	#$TileMapRenderer.test_after_cell_size_fix()
 	# Start the game
+	
+	#Setting up dungeon
+	#connect the systems
+	grid_manager.initialize_with_generator(dungeon_generator)
+	tile_renderer.setup_with_grid_manager(grid_manager)
+	
+	#Generate Dungeon
+	var map_data = dungeon_generator.generate_dungeon()
+	print("Map DATA: ", map_data)
+	grid_manager.load_map_data(map_data)
+	
+	# Spawn player
+	var spawn_pos = grid_manager.get_spawn_position()
+#	var random_pos = grid_manager.get_random_walkable_position()
+	
+	tile_renderer.spawn_actor_at_spawn(player)
+	
 	time_manager.process_turn()
 	
 

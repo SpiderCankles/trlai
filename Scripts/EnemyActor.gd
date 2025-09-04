@@ -39,7 +39,7 @@ func _ready():
 	is_player_controlled = false
 	setup_sprite()
 	setup_enemy_stats()
-	print("Enemy ready: ", enemy_type, " at ", grid_position)
+	#print("Enemy ready: ", enemy_type, " at ", grid_position)
 
 func setup_sprite():
 	# Find or create sprite node
@@ -74,7 +74,7 @@ func update_sprite_for_enemy_type():
 		
 		sprite_node.region_rect = Rect2(pixel_x, pixel_y, sprite_size.x, sprite_size.y)
 		
-		print("Set sprite region for ", enemy_type, " to: ", sprite_node.region_rect)
+		#print("Set sprite region for ", enemy_type, " to: ", sprite_node.region_rect)
 	else:
 		# Fallback to colored squares if no sprite sheet
 		sprite_node.texture = create_fallback_texture()

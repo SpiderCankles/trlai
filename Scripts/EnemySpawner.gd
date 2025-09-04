@@ -19,7 +19,8 @@ var enemy_types = ["goblin", "orc", "skeleton", "rat", "troll"]
 
 func _ready():
 	if spawn_enemies_on_ready:
-		call_deferred("spawn_test_enemies")
+		#call_deferred("spawn_test_enemies")
+		pass
 
 func spawn_test_enemies():
 	var time_manager = get_node("../TimeManager")

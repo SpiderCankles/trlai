@@ -1,10 +1,8 @@
 [gd_scene load_steps=2 format=3 uid="uid://c404fsnmj63y2"]
 
-[ext_resource type="Script" uid="uid://dnapcc6lct05" path="res://InventoryUI.gd" id="1_lm8dl"]
+[ext_resource type="Script" uid="uid://dnapcc6lct05" path="res://Scripts/InventoryUI.gd" id="1_lm8dl"]
 
-[node name="InventoryCanvasLayer" type="CanvasLayer"]
-
-[node name="InventoryUI" type="Control" parent="."]
+[node name="InventoryUI" type="Control"]
 layout_mode = 3
 anchors_preset = 8
 anchor_left = 0.5
