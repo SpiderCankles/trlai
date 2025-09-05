@@ -31,6 +31,7 @@ visible = false
 [node name="DungeonGenerator" parent="." instance=ExtResource("9_ynf5e")]
 
 [node name="TileMapRenderer" parent="." instance=ExtResource("10_hptm8")]
+scale_factor = null
 
 [node name="Player" parent="." instance=ExtResource("2_jjvhh")]
 position = Vector2(80, 80)

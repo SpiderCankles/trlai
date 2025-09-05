@@ -8,6 +8,7 @@ extends Actor
 @export var max_chase_distance: int = 15
 @export var aggression: float = 0.8
 @export var wander_chance: float = 0.3
+@export var grid_manager: GridManager
 
 # Sprite sheet configuration
 #@export var sprite_sheet: Texture2D  # Assign your sprite sheet in the editor
@@ -39,6 +40,7 @@ func _ready():
 	is_player_controlled = false
 	setup_sprite()
 	setup_enemy_stats()
+	grid_manager = get_node("/root/Main/GridManager")
 	#print("Enemy ready: ", enemy_type, " at ", grid_position)
 
 func setup_sprite():
@@ -286,6 +288,7 @@ func get_ai_action() -> Action:
 	
 	var distance_to_player = grid_position.distance_to(player.grid_position)
 	var can_see_player = can_see_target(player.grid_position)
+	print("EnemyActor || Can see player? ", can_see_player)
 	
 	print("Player at: ", player.grid_position)
 	print("Distance: ", distance_to_player)
@@ -467,7 +470,17 @@ func get_alternative_directions(target_pos: Vector2i) -> Array[Vector2i]:
 
 func can_see_target(target_pos: Vector2i) -> bool:
 	var distance = grid_position.distance_to(target_pos)
-	return distance <= detection_range
+	#line of site
+	var has_line_of_site = grid_manager.has_line_of_sight(grid_position, target_pos)
+	var is_in_distance = distance <= detection_range
+	
+	print("EnemyActor || has line of site? ", has_line_of_site)
+	print("EnemyActor || is in distance? ", is_in_distance)
+	
+	if has_line_of_site and is_in_distance:
+		return true
+		
+	return false
 
 func is_valid_move(new_pos: Vector2i) -> bool:
 	var grid_manager = get_grid_manager()

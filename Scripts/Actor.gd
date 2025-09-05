@@ -408,9 +408,9 @@ func _on_health_changed(old_health: int, new_health: int):
 # Get adjacent actors for combat targeting
 func get_adjacent_actors() -> Array[Actor]:
 	var adjacent: Array[Actor] = []
-	var directions = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT,
-					  Vector2i.UP + Vector2i.LEFT, Vector2i.UP + Vector2i.RIGHT,
-					  Vector2i.DOWN + Vector2i.LEFT, Vector2i.DOWN + Vector2i.RIGHT]
+	var directions = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT,]
+					  #Vector2i.UP + Vector2i.LEFT, Vector2i.UP + Vector2i.RIGHT,
+					  #Vector2i.DOWN + Vector2i.LEFT, Vector2i.DOWN + Vector2i.RIGHT]
 	
 	var actors = get_tree().get_nodes_in_group("actors")
 	

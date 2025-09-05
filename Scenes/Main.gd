@@ -7,6 +7,7 @@ func _ready():
 	var dungeon_generator = $DungeonGenerator
 	var grid_manager = $GridManager
 	var tile_renderer = $TileMapRenderer
+	var enemy_spawner = $EnemySpawner
 	#var enemy1 = $Actor
 	
 	# Register actors
@@ -56,7 +57,13 @@ func _ready():
 	
 	tile_renderer.spawn_actor_at_spawn(player)
 	
-	time_manager.process_turn()
+	#setting up enemies
+	var test_enemies = ["goblin", "orc", "skeleton", "rat", "troll"]
+
+	for enemy in test_enemies:
+		enemy_spawner.spawn_enemy_at_position(grid_manager.get_random_walkable_position(), enemy)
+	
+		time_manager.process_turn()
 	
 
 func test_simple_map_render():
